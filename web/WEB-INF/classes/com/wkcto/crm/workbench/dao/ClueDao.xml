@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wkcto.crm.workbench.dao.ClueDao">
+    <insert id="doSave" parameterType="Clue">
+        insert into tbl_clue
+         (id,owner,company,appellation,fullname,job,email,phone,website,mphone,state,source,description,contactSummary,nextContactTime,address,createBy,createTime,editBy,editTime)
+         values
+         (#{id},#{owner},#{company},#{appellation},#{fullname},#{job},#{email},#{phone},#{website},#{mphone},#{state},#{source},#{description},#{contactSummary},#{nextContactTime},#{address},#{createBy},#{createTime},#{editBy},#{editTime})
+    </insert>
+
+    <select id="getPageList" parameterType="Map" resultType="Map">
+        select c.id as id,u.name as owner,c.company as company,c.appellation as appellation,c.fullname as fullname,IFNULL(c.phone,'无') as phone ,IFNULL(c.mphone,'无') as mphone,c.state as state,c.source as source,c.nextContactTime as nextContactTime
+        from
+        tbl_clue c
+        join
+        tbl_user u
+        on
+        c.owner = u.id
+        <where>
+            <if test="fullname != null and fullname != ''">
+                and c.fullname like '%' #{fullname} '%'
+            </if>
+            <if test="company != null and company != ''">
+                and c.company like '%' #{company} '%'
+            </if>
+            <if test="phone != null and phone != ''">
+                and c.phone like '%' #{phone} '%'
+            </if>
+            <if test="source != null and source != ''">
+                and c.source=#{source}
+            </if>
+            <if test="owner != null and owner != ''">
+                and u.name like '%' #{owner} '%'
+            </if>
+            <if test="mphone != null and mphone != ''">
+                and c.mphone like '%' #{mphone} '%'
+            </if>
+            <if test="state != null and state != ''">
+                and c.state=#{state}
+            </if>
+        </where>
+        order by c.nextContactTime
+        limit
+        #{pageIndex},#{pageSize}
+    </select>
+
+    <select id="getTotal" parameterType="Map" resultType="Long">
+        select count(*)
+        from
+        tbl_clue c
+        join
+        tbl_user u
+        on
+        c.owner = u.id
+        <where>
+            <if test="fullname != null and fullname != ''">
+                and c.fullname like '%' #{fullname} '%'
+            </if>
+            <if test="company != null and company != ''">
+                and c.company like '%' #{company} '%'
+            </if>
+            <if test="phone != null and phone != ''">
+                and c.phone like '%' #{phone} '%'
+            </if>
+            <if test="source != null and source != ''">
+                and c.source=#{source}
+            </if>
+            <if test="owner != null and owner != ''">
+                and u.name like '%' #{owner} '%'
+            </if>
+            <if test="mphone != null and mphone != ''">
+                and c.mphone like '%' #{mphone} '%'
+            </if>
+            <if test="state != null and state != ''">
+                and c.state=#{state}
+            </if>
+        </where>
+    </select>
+    <select id="getById" resultType="Map">
+        select c.*,u.name as ownerName,u.id as uId
+        from
+          tbl_clue c
+        join
+          tbl_user u
+        on
+          c.owner = u.id
+        where
+          c.id = #{id}
+    </select>
+
+    <update id="update" parameterType="Clue">
+        update
+          tbl_clue
+        set
+          owner=#{owner},company=#{company},appellation=#{appellation},fullname=#{fullname},job=#{job},email=#{email},phone=#{phone},website=#{website},mphone=#{mphone},state=#{state},source=#{source},description=#{description},contactSummary=#{contactSummary},nextContactTime=#{nextContactTime},address=#{address},editBy=#{editBy},editTime=#{editTime}
+        where
+          id=#{id}
+    </update>
+
+    <delete id="delete">
+        delete from
+          tbl_clue
+        where id in
+        <foreach collection="array" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="getAllClue" resultType="Clue">
+        select * from tbl_clue
+    </select>
+
+    <select id="getCheckClue" resultType="Clue">
+        select * from tbl_clue
+        where id in
+        <foreach collection="array" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+    <insert id="doImport" parameterType="Clue">
+        insert into tbl_clue
+            (id,owner,company,appellation,fullname,job,email,phone,website,mphone,state,source,description,contactSummary,nextContactTime,address,createBy,createTime,editBy,editTime)
+        values
+        <foreach collection="list" separator="," item="x">
+            (#{x.id},#{x.owner},#{x.company},#{x.appellation},#{x.fullname},#{x.job},#{x.email},#{x.phone},#{x.website},#{x.mphone},#{x.state},#{x.source},#{x.description},#{x.contactSummary},#{x.nextContactTime},#{x.address},#{x.createBy},#{x.createTime},#{x.editBy},#{x.editTime})
+        </foreach>
+    </insert>
+
+    <select id="getRemarkList" resultType="ClueRemark">
+        select * from
+        tbl_clue_remark
+        where
+        clueId = #{clueId}
+    </select>
+    <insert id="doRemarkSave" parameterType="ClueRemark">
+        insert into tbl_clue_remark
+        (id,noteContent,createBy,createTime,editBy,editTime,clueId,editFlag)
+        values
+        (#{id},#{noteContent},#{createBy},#{createTime},#{editBy},#{editTime},#{clueId},#{editFlag})
+    </insert>
+    <update id="updateRemark" parameterType="ClueRemark">
+        update tbl_clue_remark
+        set noteContent=#{noteContent},editBy=#{editBy},editTime=#{editTime},editFlag=#{editFlag}
+        where
+        id = #{id}
+    </update>
+    <delete id="deleteRemark">
+        delete from tbl_clue_remark
+        where id = #{id}
+    </delete>
+
+    <select id="getById2" resultType="Clue">
+        select * from tbl_clue where id=#{clueId}
+    </select>
+
+    <delete id="delById" >
+        delete from
+         tbl_clue
+         where
+         id = #{clueId}
+    </delete>
+</mapper>

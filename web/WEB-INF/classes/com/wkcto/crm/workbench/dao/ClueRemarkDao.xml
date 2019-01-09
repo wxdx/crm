@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wkcto.crm.workbench.dao.ClueRemarkDao">
+    <select id="getClueRemarkByClueId" resultType="ClueRemark">
+         select *
+         from
+          tbl_clue_remark
+         where
+          clueId=#{clueId}
+    </select>
+    <delete id="delByClueId">
+        delete from
+          tbl_clue_remark
+        where
+          clueId = #{clueId}
+    </delete>
+    <delete id="delByClueIdArray">
+        delete from
+          tbl_clue_remark
+        where clueId in
+         <foreach collection="array" item="o" open="(" separator="," close=")">
+             #{o}
+         </foreach>
+    </delete>
+
+</mapper>

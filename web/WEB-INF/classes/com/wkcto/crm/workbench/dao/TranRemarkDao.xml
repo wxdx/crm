@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wkcto.crm.workbench.dao.TranRemarkDao">
+    <insert id="save" parameterType="TranRemark">
+        insert into
+         tbl_tran_remark
+         (id,noteContent,createBy,createTime,editBy,editTime,editFlag,tranId)
+         values
+         <foreach collection="list" item="o" separator=",">
+             (#{o.id},#{o.noteContent},#{o.createBy},#{o.createTime},#{o.editBy},#{o.editTime},#{o.editFlag},#{o.tranId})
+         </foreach>
+    </insert>
+
+    <delete id="delByTranIdArray" >
+        delete from
+        tbl_tran_remark
+        where tranId in
+        <foreach collection="array" item="o" open="(" separator="," close=")">
+            #{o}
+        </foreach>
+    </delete>
+    <select id="getListByTranId" resultType="TranRemark">
+        select * from tbl_tran_remark where tranId = #{tranId}
+    </select>
+    <insert id="saveOne" parameterType="TranRemark">
+         insert into
+         tbl_tran_remark
+         (id,noteContent,createBy,createTime,editBy,editTime,editFlag,tranId)
+         values
+         (#{id},#{noteContent},#{createBy},#{createTime},#{editBy},#{editTime},#{editFlag},#{tranId})
+    </insert>
+    <update id="update" parameterType="TranRemark">
+          update tbl_tran_remark
+          set
+          noteContent=#{noteContent},editBy=#{editBy},editTime=#{editTime},editFlag=#{editFlag}
+          where
+          id = #{id}
+    </update>
+    <delete id="delete">
+          delete from tbl_tran_remark
+          where
+          id = #{id}
+    </delete>
+</mapper>

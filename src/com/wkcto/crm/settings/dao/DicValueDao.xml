@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wkcto.crm.settings.dao.DicValueDao">
+    <select id="getType" resultType="Map">
+        select
+          code,name
+        from
+          tbl_dic_type
+    </select>
+    <insert id="doSave" parameterType="DicValue">
+        insert into tbl_dic_value
+          (id,value,text,orderNo,typeCode)
+        values
+          (#{id},#{value},#{text},#{orderNo},#{typeCode})
+    </insert>
+    <select id="getList" resultType="DicValue">
+        select
+          *
+        from
+          tbl_dic_value
+    </select>
+    <select id="getOne" resultType="DicValue">
+        select
+          *
+        from
+          tbl_dic_value
+        where
+          id=#{id}
+    </select>
+    <update id="doUpdate" parameterType="DicValue">
+        update tbl_dic_value
+        set
+          value=#{value},text=#{text},orderNo=#{orderNo}
+        where
+          id=#{id}
+    </update>
+
+    <delete id="doDelete">
+        delete from
+          tbl_dic_value
+        where id in
+          <foreach collection="array" item="id" open="(" separator="," close=")">
+              #{id}
+          </foreach>
+    </delete>
+
+    <select id="checkVlaue" resultType="Integer">
+        select count(*)
+        from
+        tbl_dic_value
+        where
+        typeCode=#{arg0} and value=#{arg1}
+    </select>
+    <select id="getTypeName" resultType="Map">
+        select name
+        from
+        tbl_dic_type
+        where code=#{typeCode1}
+    </select>
+    <select id="getByTypeCode" resultType="DicValue">
+        select * from tbl_dic_value where typeCode = #{typeCode} order by orderNo asc
+    </select>
+
+</mapper>

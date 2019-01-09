@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wkcto.crm.workbench.dao.ActivityDao">
+    <select id="getIdAndName" resultType="User">
+        select id,name
+        from
+         tbl_user
+    </select>
+    <insert id="save" parameterType="Activity">
+        insert into tbl_activity
+        (id,owner,name,startTime,endTime,cost,createBy,createTime,editBy,editTime,description)
+        values
+        (#{id},#{owner},#{name},#{startTime},#{endTime},#{cost},#{createBy},#{createTime},#{editBy},#{editTime},#{description})
+    </insert>
+    <select id="getPageList" parameterType="Map" resultType="Map">
+        select a.id as id,a.name as name,a.startTime as startTime,a.endTime as endTime,u.name as ownerName
+        from
+        tbl_activity a
+        join
+        tbl_user u
+        on
+        a.owner = u.id
+        <where>
+            <if test="name != null and name != ''">
+                and a.name like '%' #{name} '%'
+            </if>
+            <if test="ownerName != null and ownerName != ''">
+                and u.name like '%' #{ownerName} '%'
+            </if>
+            <if test="startTime != null and startTime != ''">
+                and a.startTime &gt;= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                and a.endTime &lt;= #{endTime}
+            </if>
+        </where>
+        order by a.startTime
+        limit
+        #{pageIndex},#{pageSize}
+    </select>
+
+    <select id="getTotal" parameterType="Map" resultType="Long">
+        select count(*)
+        from
+        tbl_activity a
+        join
+        tbl_user u
+        on
+        a.owner = u.id
+        <where>
+            <if test="name != null and name != ''">
+                and a.name like '%' #{name} '%'
+            </if>
+            <if test="ownerName != null and ownerName != ''">
+                and u.name like '%' #{ownerName} '%'
+            </if>
+            <if test="startTime != null and startTime != ''">
+                and a.startTime &gt;= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                and a.endTime &lt;= #{endTime}
+            </if>
+        </where>
+    </select>
+
+    <select id="getInfoById" resultType="Map">
+        select  a.*,u.name as ownerName,u.id as userId
+        from
+        tbl_activity a
+        join
+        tbl_user u
+        on a.owner = u.id
+        where
+        a.id = #{id}
+    </select>
+    <update id="update" parameterType="Activity">
+        update tbl_activity
+        set owner=#{owner},name=#{name},startTime=#{startTime},endTime=#{endTime},cost=#{cost},editBy=#{editBy},editTime=#{editTime},description=#{description}
+        where
+        id=#{id}
+    </update>
+
+    <delete id="delete">
+        delete from
+        tbl_activity
+        where id in
+        <foreach collection="array" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="getRemark" resultType="ActivityRemark">
+        select * from tbl_activity_remark where activityId = #{activityId} order by createTime asc
+    </select>
+
+    <insert id="doRemarkSave" parameterType="ActivityRemark">
+        insert into tbl_activity_remark
+        (id,activityId,noteContent,createBy,createTime,editBy,editTime,editFlag)
+        values
+        (#{id},#{activityId},#{noteContent},#{createBy},#{createTime},#{editBy},#{editTime},#{editFlag})
+    </insert>
+
+    <delete id="deleteRemark">
+        delete from
+        tbl_activity_remark
+        where id = #{id}
+    </delete>
+
+    <update id="updateRemark" parameterType="ActivityRemark">
+        update tbl_activity_remark
+        set noteContent=#{noteContent},editBy=#{editBy},editTime=#{editTime},editFlag=#{editFlag}
+        where
+        id = #{id}
+    </update>
+    <select id="getActivityList" resultType="Activity">
+        select * from tbl_activity
+    </select>
+
+    <select id="getCheckAllActivity" resultType="Activity">
+        select * from tbl_activity
+        where id in
+        <foreach collection="array" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <insert id="doImport" parameterType="Activity">
+        insert into tbl_activity
+            (id,owner,name,startTime,endTime,cost,createBy,createTime,editBy,editTime,description)
+        values
+        <foreach collection="list" separator="," item="x">
+            (#{x.id},#{x.owner},#{x.name},#{x.startTime},#{x.endTime},#{x.cost},#{x.createBy},#{x.createTime},#{x.editBy},#{x.editTime},#{x.description})
+        </foreach>
+    </insert>
+
+    <select id="doGetNeverRelationActivity"  resultType="Activity">
+        select a.id,a.name,a.startTime,a.endTime,u.name as owner
+        from
+          tbl_activity a
+        join
+          tbl_user u
+        on
+          a.owner = u.id
+        <where>
+            and a.id not in
+            (select activityId from tbl_clue_activity_relation  where clueId=#{arg0} )
+            <if test="arg1 != null and arg1 != ''">
+                and a.name like '%' #{arg1} '%'
+            </if>
+        </where>
+    </select>
+    <select id="getAll" resultType="Activity">
+        select a.id,a.name,a.startTime,a.endTime,u.name as owner
+        from
+        tbl_activity a
+        join
+        tbl_user u
+        on
+        a.owner = u.id
+        where
+        a.name like '%' #{name} '%'
+    </select>
+
+    <select id="doGetNeverRelationActivity1" resultType="Activity">
+        select a.id,a.name,a.startTime,a.endTime,u.name as owner
+        from
+        tbl_activity a
+        join
+        tbl_user u
+        on
+        a.owner = u.id
+        <where>
+            and a.id not in
+            (select activityId from tbl_contact_activity_relation  where contactId=#{arg0} )
+            <if test="arg1 != null and arg1 != ''">
+                and a.name like '%' #{arg1} '%'
+            </if>
+        </where>
+    </select>
+
+</mapper>

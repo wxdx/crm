@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wkcto.crm.workbench.dao.ContactActivityRelationDao">
+    <insert id="save" parameterType="ContactActivityRelation">
+        insert into
+        tbl_contact_activity_relation
+            (id,contactId,activityId)
+        values
+        <foreach collection="list" item="o"  separator=",">
+            (#{o.id},#{o.contactId},#{o.activityId})
+        </foreach>
+    </insert>
+
+    <select id="getActivityByContactId" resultType="Map">
+    select a.id,a.name,a.startTime,a.endTime,u.name as owner,r.id as rId
+    from
+      tbl_contact_activity_relation r
+    join
+      tbl_activity a
+    on
+      r.activityId = a.id
+    join
+      tbl_user u
+    on
+      a.owner = u.id
+    where
+      r.contactId = #{contactId}
+    </select>
+
+    <delete id="doDissociatedById" >
+        delete from
+          tbl_contact_activity_relation
+        where
+          id=#{id}
+    </delete>
+
+    <insert id="relation" parameterType="ContactActivityRelation">
+        insert into tbl_contact_activity_relation
+        (id,contactId,activityId)
+        values
+        <foreach collection="list" item="o" separator=",">
+            (#{o.id},#{o.contactId},#{o.activityId})
+        </foreach>
+    </insert>
+</mapper>

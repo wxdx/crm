@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wkcto.crm.workbench.dao.ClueActivityRelationDao">
+<select id="getActivityByClueId" resultType="Map">
+    select a.id as id,a.name,a.startTime,a.endTime,u.name as owner,r.id as rId
+    from
+      tbl_clue_activity_relation r
+    join
+      tbl_activity a
+    on
+      r.activityId = a.id
+    join
+      tbl_user u
+    on
+      a.owner = u.id
+    where
+      clueId = #{clueId}
+</select>
+    <insert id="relationClueAndActivity" parameterType="ClueActivityRelation">
+        insert into tbl_clue_activity_relation
+            (id,clueId,activityId)
+        values
+        <foreach collection="list" item="o" separator=",">
+            (#{o.id},#{o.clueId},#{o.activityId})
+        </foreach>
+    </insert>
+
+    <delete id="doDissociatedById">
+        delete from
+          tbl_clue_activity_relation
+        where
+          id=#{id}
+    </delete>
+
+    <select id="getActivityIdByClueId" resultType="String">
+        select
+          activityId
+        from
+          tbl_clue_activity_relation
+        where
+          clueId = #{clueId}
+    </select>
+
+    <delete id="delByClueId">
+        delete from
+        tbl_clue_activity_relation
+        where
+        clueId = #{clueId}
+    </delete>
+
+</mapper>

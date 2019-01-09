@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wkcto.crm.workbench.dao.ContactRemarkDao">
+    <insert id="save" parameterType="ContactRemark">
+        insert into
+        tbl_contact_remark
+        (id,noteContent,createBy,createTime,editBy,editTime,contactId,editFlag)
+        values
+        <foreach collection="list" item="o"  separator=",">
+            (#{o.id},#{o.noteContent},#{o.createBy},#{o.createTime},#{o.editBy},#{o.editTime},#{o.contactId},#{o.editFlag})
+        </foreach>
+    </insert>
+    <delete id="delByContactIdArray">
+        delete from
+        tbl_contact_remark
+        where contactId in
+        <foreach collection="array" item="o" open="(" separator="," close=")">
+            #{o}
+        </foreach>
+    </delete>
+    <insert id="saveOne" parameterType="ContactRemark">
+        insert into
+        tbl_contact_remark
+        (id,noteContent,createBy,createTime,editBy,editTime,contactId,editFlag)
+        values
+        (#{id},#{noteContent},#{createBy},#{createTime},#{editBy},#{editTime},#{contactId},#{editFlag})
+    </insert>
+    <select id="getListByContactId" resultType="ContactRemark">
+        select *
+        from tbl_contact_remark
+        where
+        contactId = #{contactId}
+    </select>
+    <update id="update" parameterType="ContactRemark">
+         update tbl_contact_remark
+          set
+          noteContent=#{noteContent},editBy=#{editBy},editTime=#{editTime},editFlag=#{editFlag}
+          where
+          id = #{id}
+    </update>
+    <delete id="delete">
+        delete from
+        tbl_contact_remark
+        where
+        id = #{id}
+    </delete>
+</mapper>

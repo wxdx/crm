@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wkcto.crm.workbench.dao.CustomerDao">
+    <select id="getByName" resultType="Customer">
+        select * from tbl_customer
+        where name = #{name}
+    </select>
+    <insert id="save" parameterType="Customer">
+        insert into
+         tbl_customer
+         (id,owner,name,phone,website,description,contactSummary,nextContactTime,address,createBy,createTime,editBy,editTime)
+         values
+         (#{id},#{owner},#{name},#{phone},#{website},#{description},#{contactSummary},#{nextContactTime},#{address},#{createBy},#{createTime},#{editBy},#{editTime})
+    </insert>
+
+    <select id="getPageList" parameterType="Map" resultType="Map">
+        select c.id as id,u.name as owner,c.name as name,IFNULL(c.phone,'无') as phone ,IFNULL(c.website,'无') as website
+        from
+        tbl_customer c
+        join
+        tbl_user u
+        on
+        c.owner = u.id
+        <where>
+            <if test="name != null and name != ''">
+                and c.name like '%' #{name} '%'
+            </if>
+            <if test="phone != null and phone != ''">
+                and c.phone like '%' #{phone} '%'
+            </if>
+            <if test="owner != null and owner != ''">
+                and u.name like '%' #{owner} '%'
+            </if>
+            <if test="website != null and website != ''">
+                and c.website=#{website}
+            </if>
+        </where>
+        order by c.nextContactTime
+        limit
+        #{pageIndex},#{pageSize}
+    </select>
+
+    <select id="getTotal" parameterType="Map" resultType="Long">
+        select count(*)
+        from
+        tbl_customer c
+        join
+        tbl_user u
+        on
+        c.owner = u.id
+        <where>
+            <if test="name != null and name != ''">
+                and c.name like '%' #{name} '%'
+            </if>
+            <if test="phone != null and phone != ''">
+                and c.phone like '%' #{phone} '%'
+            </if>
+            <if test="owner != null and owner != ''">
+                and u.name like '%' #{owner} '%'
+            </if>
+            <if test="website != null and website != ''">
+                and c.website=#{website}
+            </if>
+        </where>
+    </select>
+
+    <select id="getById" resultType="Map">
+        select c.*,u.name as ownerName,u.id as uId
+        from
+          tbl_customer c
+        join
+          tbl_user u
+        on
+          c.owner = u.id
+        where
+          c.id = #{id}
+    </select>
+
+    <update id="update" parameterType="Customer">
+        update tbl_customer
+        set
+        owner=#{owner},name=#{name},phone=#{phone},website=#{website},description=#{description},contactSummary=#{contactSummary},nextContactTime=#{nextContactTime},address=#{address},editBy=#{editBy},editTime=#{editTime}
+        where
+        id=#{id}
+    </update>
+
+    <delete id="delete">
+        delete from
+          tbl_customer
+        where id in
+          <foreach collection="array" item="o" open="(" separator="," close=")">
+              #{o}
+          </foreach>
+    </delete>
+
+    <select id="getAllCustomer" resultType="Customer">
+        select * from tbl_customer
+    </select>
+
+    <select id="getCheckAllCustomer" resultType="Customer">
+        select * from tbl_customer
+        where id in
+        <foreach collection="array" item="o" open="(" separator="," close=")">
+            #{o}
+        </foreach>
+    </select>
+
+    <insert id="doImport" parameterType="Customer">
+        insert into
+         tbl_customer
+         (id,owner,name,phone,website,description,contactSummary,nextContactTime,address,createBy,createTime,editBy,editTime)
+         values
+         <foreach collection="list" item="o" separator=",">
+             (#{o.id},#{o.owner},#{o.name},#{o.phone},#{o.website},#{o.description},#{o.contactSummary},#{o.nextContactTime},#{o.address},#{o.createBy},#{o.createTime},#{o.editBy},#{o.editTime})
+         </foreach>
+    </insert>
+
+    <select id="doCheckByName" resultType="Customer">
+        select * from
+        tbl_customer
+        where name = #{name}
+    </select>
+
+    <select id="getMatchNameByName" resultType="String">
+        select name from tbl_customer
+        where
+         name like '%' #{name} '%'
+    </select>
+
+</mapper>

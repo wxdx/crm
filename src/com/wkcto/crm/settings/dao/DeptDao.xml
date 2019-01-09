@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wkcto.crm.settings.dao.DeptDao">
+    <insert id="doSave" parameterType="Dept">
+        insert into
+          tbl_dept
+          (deptno,name,leader,phone,description)
+          values
+          (#{deptno},#{name},#{leader},#{phone},#{description})
+    </insert>
+    <select id="doCheck" resultType="Integer">
+        select
+          count(*)
+        from
+         tbl_dept
+         where
+         deptno=#{deptno}
+    </select>
+    <select id="doGetList" resultType="Dept">
+        select
+          deptno,name,leader,phone,description
+        from
+         tbl_dept
+    </select>
+    <select id="doGetOne" resultType="Dept">
+        select
+          deptno,name,leader,phone,description
+        from
+         tbl_dept
+         where
+         deptno=#{deptno}
+    </select>
+
+    <update id="doUpdate" parameterType="Map">
+          update
+          tbl_dept
+          set
+          deptno=#{deptno},name=#{name},leader=#{leader},phone=#{phone},description=#{description}
+          where
+          deptno=#{oldDeptno}
+    </update>
+    <delete id="doDelete">
+        delete from
+        tbl_dept
+        where deptno in
+        <foreach collection="array" item="deptno" open="(" separator="," close=")">
+            #{deptno}
+        </foreach>
+    </delete>
+
+    <select id="getDeptList" resultType="Dept">
+        select deptno,name
+        from
+        tbl_dept
+    </select>
+
+</mapper>

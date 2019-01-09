@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wkcto.crm.workbench.dao.ContactDao">
+    <insert id="save" parameterType="Contact">
+        insert into tbl_contacts
+        (id,owner,source,appellation,name,job,mphone,email,birth,customerId,description,contactSummary,nextContactTime,address,createBy,createTime,editBy,editTime)
+        values
+        (#{id},#{owner},#{source},#{appellation},#{name},#{job},#{mphone},#{email},#{birth},#{customerId},#{description},#{contactSummary},#{nextContactTime},#{address},#{createBy},#{createTime},#{editBy},#{editTime})
+    </insert>
+    <select id="getContactByCustomerId" resultType="Contact">
+        select * from tbl_contacts
+        where
+        customerId = #{customerId}
+    </select>
+
+    <delete id="delContact">
+        delete from tbl_contacts
+        where
+        id = #{id}
+    </delete>
+
+    <select id="getByName" resultType="Contact">
+        select * from tbl_contacts
+        where
+          name like '%' #{name} '%'
+    </select>
+
+    <select id="getList" parameterType="Map" resultType="Map">
+        select c.name,c.id,c.source,IFNULL(c.birth,"无") as birth,u.name as ownerName,IFNULL(r.name,'无') as customerName
+        from tbl_contacts c
+        join
+        tbl_user u
+        on
+        c.owner = u.id
+        left join
+        tbl_customer r
+        on
+        c.customerId = r.id
+        <where>
+            <if test="owner != null and owner != ''">
+                and u.name like '%' #{owner} '%'
+            </if>
+            <if test="name != null and name != ''">
+                and c.name like '%' #{name} '%'
+            </if>
+            <if test="source != null and source != ''">
+                and c.source = #{source}
+            </if>
+            <if test="birth != null and birth != ''">
+                and c.birth like '%' #{birth} '%'
+            </if>
+            <if test="customerName != null and customerName != ''">
+                and c.customerId in (select id from tbl_customer where name = #{customerName})
+            </if>
+        </where>
+        order by c.createTime
+        limit
+        #{pageIndex},#{pageSize}
+    </select>
+    <select id="getPageTotal" parameterType="Map" resultType="Long">
+        select count(*)
+        from tbl_contacts c
+        join
+        tbl_user u
+        on
+        c.owner = u.id
+        <where>
+            <if test="owner != null and owner != ''">
+                and u.name like '%' #{owner} '%'
+            </if>
+            <if test="name != null and name != ''">
+                and c.name like '%' #{name} '%'
+            </if>
+            <if test="source != null and source != ''">
+                and c.source = #{source}
+            </if>
+            <if test="birth != null and birth != ''">
+                and c.birth like '%' #{birth} '%'
+            </if>
+            <if test="customerName != null and customerName != ''">
+                and c.customerId in (select id from tbl_customer where name = #{customerName})
+            </if>
+        </where>
+    </select>
+    <select id="getOne" resultType="Map">
+        select c.*,u.id as uId,u.name as ownerName,r.name as customerName
+        from tbl_contacts c
+        join
+        tbl_user u
+        on
+        c.owner = u.id
+        join
+        tbl_customer r
+        on
+        c.customerId = r.id
+        where c.id=#{id}
+    </select>
+
+    <update id="update" parameterType="Contact">
+        update
+         tbl_contacts
+        set
+          owner=#{owner},source=#{source},appellation=#{appellation},name=#{name},job=#{job},mphone=#{mphone},email=#{email},birth=#{birth},customerId=#{customerId},description=#{description},contactSummary=#{contactSummary},nextContactTime=#{nextContactTime},address=#{address},createBy=#{createBy},createTime=#{createTime},editBy=#{editBy},editTime=#{editTime}
+        where
+        id = #{id}
+    </update>
+
+    <delete id="delete">
+        delete from
+        tbl_contacts
+        where id in
+        <foreach collection="array" item="o" open="(" separator="," close=")">
+            #{o}
+        </foreach>
+    </delete>
+
+    <select id="getAllContact" resultType="Contact">
+        select * from tbl_contacts
+    </select>
+
+    <select id="getCheckAllContact" resultType="Contact">
+        select * from tbl_contacts
+        where id in
+        <foreach collection="array" item="o" open="(" separator="," close=")">
+            #{o}
+        </foreach>
+    </select>
+
+    <insert id="doImport" parameterType="Contact">
+        insert into tbl_contacts
+        (id,owner,source,appellation,name,job,mphone,email,birth,customerId,description,contactSummary,nextContactTime,address,createBy,createTime,editBy,editTime)
+        values
+        <foreach collection="list" separator="," item="o">
+            (#{o.id},#{o.owner},#{o.source},#{o.appellation},#{o.name},#{o.job},#{o.mphone},#{o.email},#{o.birth},#{o.customerId},#{o.description},#{o.contactSummary},#{o.nextContactTime},#{o.address},#{o.createBy},#{o.createTime},#{o.editBy},#{o.editTime})
+        </foreach>
+    </insert>
+
+    <select id="getAlertMsg" resultType="Map">
+        select
+        name,appellation
+        from
+        tbl_contacts
+        where
+        nextContactTime = #{nowTime}
+    </select>
+
+</mapper>

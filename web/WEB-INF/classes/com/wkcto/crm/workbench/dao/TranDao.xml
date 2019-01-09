@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wkcto.crm.workbench.dao.TranDao">
+    <insert id="save" parameterType="Tran">
+        insert into
+         tbl_tran
+         (id,owner,money,name,expectedDate,customerId,stage,type,source,activityId,contactsId,description,contactSummary,nextContactTime,createBy,createTime,editBy,editTime)
+         values
+         (#{id},#{owner},#{money},#{name},#{expectedDate},#{customerId},#{stage},#{type},#{source},#{activityId},#{contactsId},#{description},#{contactSummary},#{nextContactTime},#{createBy},#{createTime},#{editBy},#{editTime})
+    </insert>
+
+    <select id="getByCustomerId" resultType="Map">
+        select t.*,c.name as  companyName
+        from
+        tbl_tran t
+        join
+        tbl_customer c
+        on
+        t.customerId = c.id
+        where
+        t.customerId = #{customerId}
+    </select>
+
+    <delete id="delById" >
+        delete from tbl_tran
+        where id = #{id}
+    </delete>
+    <select id="getByContactsId" resultType="Map">
+        select t.*,c2.name as  companyName
+        from
+        tbl_tran t
+        join
+        tbl_contacts c1
+        on
+        t.contactsId = c1.id
+        join
+        tbl_customer c2
+        on
+        t.customerId = c2.id
+        where
+        t.contactsId = #{contactsId}
+
+    </select>
+
+    <select id="getList" parameterType="Map" resultType="Map">
+        select
+          t.id,t.name,u.name as owner,t.stage,t.type,c.name as customerName,t.source,IFNULL(con.name,'无') as contactName
+        from
+          tbl_tran t
+        join
+        tbl_user u
+        on
+        t.owner = u.id
+        join
+        tbl_customer c
+        on
+        t.customerId = c.id
+        left join
+        tbl_contacts con
+        on
+        t.contactsId = con.id
+        <where>
+            <if test="name != null and name != ''">
+                and t.name like '%' #{name} '%'
+            </if>
+            <if test="owner != null and owner != ''">
+                and u.name like '%' #{owner} '%'
+            </if>
+            <if test="customerName != null and customerName != ''">
+                and c.name like '%' #{customerName} '%'
+            </if>
+            <if test="stage != null and stage != ''">
+                and t.stage=#{stage}
+            </if>
+            <if test="type != null and type != ''">
+                and t.type=#{type}
+            </if>
+            <if test="source != null and source != ''">
+                and t.source=#{source}
+            </if>
+            <if test="contactName != null and contactName != ''">
+                and con.name like '%' #{contactName} '%'
+            </if>
+        </where>
+        order by t.money
+        limit
+         #{pageIndex},#{pageSize}
+    </select>
+
+    <select id="getPageTotal" parameterType="Map" resultType="Long">
+        select count(*)
+        from
+        tbl_tran t
+        join
+        tbl_user u
+        on
+        t.owner = u.id
+        join
+        tbl_customer c
+        on
+        t.customerId = c.id
+        left join
+        tbl_contacts con
+        on
+        t.contactsId = con.id
+        <where>
+            <if test="name != null and name != ''">
+                and t.name like '%' #{name} '%'
+            </if>
+            <if test="owner != null and owner != ''">
+                and u.name like '%' #{owner} '%'
+            </if>
+            <if test="customerName != null and customerName != ''">
+                and c.name like '%' #{customerName} '%'
+            </if>
+            <if test="stage != null and stage != ''">
+                and t.stage=#{stage}
+            </if>
+            <if test="type != null and type != ''">
+                and t.type=#{type}
+            </if>
+            <if test="source != null and source != ''">
+                and t.source=#{source}
+            </if>
+            <if test="contactName != null and contactName != ''">
+                and con.name like '%' #{contactName} '%'
+            </if>
+        </where>
+    </select>
+
+    <select id="getOneById" resultType="Map">
+        select
+        u.id as uId,t.id,u.name as ownerName,a.id as activityId,t.money,t.name,t.expectedDate,c.name as customerName,c.id as customerId,t.stage,t.type,t.source,a.name as activityName,con.name as contactsName,con.id as contactsId,t.description,t.contactSummary,t.nextContactTime,t.createBy,t.createTime,t.editBy,t.editTime
+        from
+        tbl_tran t
+        join
+        tbl_user u
+        on
+        t.owner = u.id
+        left join
+        tbl_activity a
+        on
+        t.activityId = a.id
+        left join
+        tbl_contacts con
+        on
+        t.contactsId = con.id
+        join
+        tbl_customer c
+        on
+        t.customerId = c.id
+        where
+        t.id = #{id}
+
+    </select>
+
+    <update id="doUpdate" parameterType="Tran">
+        update tbl_tran
+        set
+          owner = #{owner},
+          money = #{money},
+          name = #{name},
+          expectedDate = #{expectedDate},
+          customerId = #{customerId},
+          stage = #{stage},
+          type = #{type},
+          source = #{source},
+          activityId = #{activityId},
+          contactsId = #{contactsId},
+          description = #{description},
+          contactSummary = #{contactSummary},
+          nextContactTime = #{nextContactTime},
+          editBy = #{editBy},
+          editTime = #{editTime}
+        where
+          id = #{id}
+    </update>
+
+    <delete id="delete">
+        delete from
+        tbl_tran
+        where id in
+        <foreach collection="array" item="o" open="(" separator="," close=")">
+            #{o}
+        </foreach>
+    </delete>
+    <select id="getAllTran" resultType="Tran">
+        select * from tbl_tran
+    </select>
+    <select id="getCheckAllTran" resultType="Tran">
+        select * from tbl_tran
+        where id in
+        <foreach collection="array" item="o" open="(" separator="," close=")">
+            #{o}
+        </foreach>
+    </select>
+
+    <insert id="doImport" parameterType="Tran">
+        insert into
+        tbl_tran
+        (id,owner,money,name,expectedDate,customerId,stage,type,source,activityId,contactsId,description,contactSummary,nextContactTime,createBy,createTime,editBy,editTime)
+        values
+        <foreach collection="list" separator="," item="o">
+            (#{o.id},#{o.owner},#{o.money},#{o.name},#{o.expectedDate},#{o.customerId},#{o.stage},#{o.type},#{o.source},#{o.activityId},#{o.contactsId},#{o.description},#{o.contactSummary},#{o.nextContactTime},#{o.createBy},#{o.createTime},#{o.editBy},#{o.editTime})
+        </foreach>
+    </insert>
+
+    <update id="updateStage" parameterType="Tran">
+        update tbl_tran
+        set
+        stage = #{stage},editBy=#{editBy},editTime=#{editTime}
+        where
+        id = #{id}
+    </update>
+</mapper>
